@@ -229,7 +229,8 @@ class Cuda {
 
   //! Initialize, telling the CUDA run-time library which device to use.
   static void initialize(const SelectDevice         = SelectDevice(),
-                         const size_t num_instances = 1);
+                         const size_t num_instances = 1,
+			 const bool init_host_exec_space = true);
 #else
   //! Free any resources being consumed by the device.
   static void impl_finalize();
@@ -239,7 +240,8 @@ class Cuda {
 
   //! Initialize, telling the CUDA run-time library which device to use.
   static void impl_initialize(const SelectDevice         = SelectDevice(),
-                              const size_t num_instances = 1);
+                              const size_t num_instances = 1,
+			      const bool init_host_exec_space = true);
 #endif
 
   /// \brief Cuda device architecture of the selected device.

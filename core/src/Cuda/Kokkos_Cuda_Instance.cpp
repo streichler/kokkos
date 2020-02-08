@@ -304,7 +304,8 @@ CudaInternal &CudaInternal::singleton() {
 }
 void CudaInternal::fence() const { cudaStreamSynchronize(m_stream); }
 
-void CudaInternal::initialize(int cuda_device_id, cudaStream_t stream) {
+void CudaInternal::initialize(int cuda_device_id, cudaStream_t stream,
+			      bool init_host_exec_space) {
   if (was_finalized)
     Kokkos::abort("Calling Cuda::initialize after Cuda::finalize is illegal\n");
   was_initialized = 1;
@@ -312,15 +313,17 @@ void CudaInternal::initialize(int cuda_device_id, cudaStream_t stream) {
 
   enum { WordSize = sizeof(size_type) };
 
+  if (init_host_exec_space) {
 #ifdef KOKKOS_ENABLE_DEPRECATED_CODE
-  if (!HostSpace::execution_space::is_initialized()) {
+    if (!HostSpace::execution_space::is_initialized()) {
 #else
-  if (!HostSpace::execution_space::impl_is_initialized()) {
+    if (!HostSpace::execution_space::impl_is_initialized()) {
 #endif
-    const std::string msg(
-        "Cuda::initialize ERROR : HostSpace::execution_space is not "
-        "initialized");
-    throw_runtime_exception(msg);
+      const std::string msg(
+          "Cuda::initialize ERROR : HostSpace::execution_space is not "
+          "initialized");
+      throw_runtime_exception(msg);
+    }
   }
 
   const CudaInternalDevices &dev_info = CudaInternalDevices::singleton();
@@ -738,13 +741,16 @@ int Cuda::impl_is_initialized()
 }
 
 #ifdef KOKKOS_ENABLE_DEPRECATED_CODE
-void Cuda::initialize(const Cuda::SelectDevice config, size_t num_instances)
+void Cuda::initialize(const Cuda::SelectDevice config, size_t num_instances,
+		      bool init_host_exec_space)
 #else
 void Cuda::impl_initialize(const Cuda::SelectDevice config,
-                           size_t num_instances)
+                           size_t num_instances,
+			   bool init_host_exec_space)
 #endif
 {
-  Impl::CudaInternal::singleton().initialize(config.cuda_device_id, 0);
+  Impl::CudaInternal::singleton().initialize(config.cuda_device_id, 0,
+					     init_host_exec_space);
 
 #if defined(KOKKOS_ENABLE_PROFILING)
   Kokkos::Profiling::initialize();
@@ -800,7 +806,8 @@ Cuda::Cuda(cudaStream_t stream) : m_space_instance(new Impl::CudaInternal) {
   Impl::CudaInternal::singleton().verify_is_initialized(
       "Cuda instance constructor");
   m_space_instance->initialize(Impl::CudaInternal::singleton().m_cudaDev,
-                               stream);
+                               stream,
+			       false /*do not reinit host exec space*/);
 }
 
 void Cuda::print_configuration(std::ostream &s, const bool) {

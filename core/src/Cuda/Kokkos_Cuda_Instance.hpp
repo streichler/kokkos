@@ -121,7 +121,8 @@ class CudaInternal {
     return 0 != m_scratchSpace && 0 != m_scratchFlags;
   }
 
-  void initialize(int cuda_device_id, cudaStream_t stream = 0);
+  void initialize(int cuda_device_id, cudaStream_t stream = 0,
+		  bool init_host_exec_space = true);
   void finalize();
 
   void print_configuration(std::ostream&) const;
