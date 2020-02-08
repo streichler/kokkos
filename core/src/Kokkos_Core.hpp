@@ -125,6 +125,7 @@ void initialize(int& narg, char* arg[]);
 
 void initialize(InitArguments args = InitArguments());
 
+#define KOKKOS_LEGION_INTEROP_FORK
 void impl_initialize(InitArguments args, bool init_exec_spaces);
 
 bool is_initialized() noexcept;
