@@ -123,6 +123,7 @@ void initialize(int& narg, char* arg[]);
 void initialize(InitArguments args = InitArguments());
 
 namespace Impl {
+#define KOKKOS_LEGION_INTEROP_FORK
 
 void pre_initialize(const InitArguments& args);
 
