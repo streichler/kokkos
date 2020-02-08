@@ -125,6 +125,8 @@ void initialize(int& narg, char* arg[]);
 
 void initialize(InitArguments args = InitArguments());
 
+void impl_initialize(InitArguments args, bool init_exec_spaces);
+
 bool is_initialized() noexcept;
 
 bool show_warnings() noexcept;
